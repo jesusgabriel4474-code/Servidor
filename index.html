@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astral Craft - Livro de Regras</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Caveat:wght@600&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Variáveis e Cores */
+        :root {
+            --book-bg: #EED7A1;
+            --book-border: #3E2723;
+            --text-color: #2e1e0f;
+            --highlight: #D84315;
+            --link-color: #1565C0;
+        }
+
+        /* Reset e Fundo */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Ubuntu', sans-serif;
+            background-color: #0b0c10; /* Fundo escuro atrás das estrelas */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Container do Livro */
+        .book-container {
+            position: relative;
+            z-index: 10;
+            background-color: var(--book-bg);
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+            max-height: 700px;
+            border: 8px solid var(--book-border);
+            border-radius: 10px;
+            box-shadow: inset 0 0 30px rgba(139, 69, 19, 0.4), 0 15px 35px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-image: repeating-linear-gradient(transparent, transparent 30px, rgba(139, 69, 19, 0.05) 30px, rgba(139, 69, 19, 0.05) 31px);
+        }
+
+        /* Conteúdo da Página */
+        .page-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            color: var(--text-color);
+            font-family: 'Ubuntu', sans-serif;
+            padding-right: 10px;
+        }
+
+        /* Estilos do Markdown (Títulos, etc) */
+        .page-content h1 {
+            font-family: 'VT323', monospace;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-top: 0;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .page-content p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .page-content ul {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .page-content li {
+            margin-bottom: 10px;
+        }
+
+        /* Cores Específicas e Degradês */
+        .gradient-text {
+            background: linear-gradient(45deg, #FF512F, #DD2476);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .color-green { color: #2E7D32; font-weight: bold; }
+        .color-red { color: #C62828; font-weight: bold; }
+        .color-blue { color: #1565C0; font-weight: bold; }
+
+        /* Estilo dos Links/Botões de Ação */
+        .action-link {
+            display: block;
+            text-align: center;
+            background-color: var(--book-border);
+            color: white !important;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            margin: 15px 0;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .action-link:hover {
+            background-color: var(--highlight);
+            transform: translateY(-2px);
+        }
+
+        /* Controles do Livro (Botões de passar página) */
+        .book-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 2px solid rgba(139, 69, 19, 0.2);
+            margin-top: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--book-border);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-btn:hover {
+            color: var(--highlight);
+        }
+
+        .nav-btn:disabled {
+            color: rgba(139, 69, 19, 0.3);
+            cursor: not-allowed;
+        }
+
+        .page-number {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            color: var(--book-border);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(139, 69, 19, 0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--book-border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div class="book-container animate__animated animate__zoomIn">
+        <div id="content-area" class="page-content animate__animated">
+            </div>
+        
+        <div class="book-controls">
+            <button id="btn-prev" class="nav-btn hvr-backward" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="page-number" id="page-indicator">1 / 3</span>
+            <button id="btn-next" class="nav-btn hvr-forward" onclick="changePage(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <script>
+        // Configuração das Páginas em Markdown (Perceba o uso do '#' para títulos grandes e HTML para cores)
+        const pages = [
+            `# <span class="gradient-text">Bem-vindo(a)!</span> ✨
+            
+Divirta-se muito no nosso maravilhoso mundo de Minecraft! Aproveite cada aventura épica.
+
+* 🤝 <span class="color-blue">Juntos Somos Mais Fortes:</span> Construam planos em equipe com todo mundo junto, não fiquem separados apenas em duplas!
+* 💡 <span class="color-green">Ideias:</span> Deem sugestões de mods incríveis lá no nosso grupo.
+* 💖 <span class="color-red">Seja Amigável:</span> Ajude os outros jogadores, não roube e jamais destrua a propriedade ou os itens dos amigos.
+
+Fiquem sempre unidos e boa sorte na sobrevivência!`,
+
+            `# 📜 <span class="color-red">As Regras</span>
+            
+Para deixar o servidor **equilibrado e super legal** de jogar, siga estas regras:
+
+1.  🤬 **Sem Toxidade:** Não xingar, ofender ou faltar com respeito.
+2.  🚫 **Não Roubar:** Pegar coisas de outros baús é totalmente proibido!
+3.  🗡️ **Sem RDM:** Não matar outros jogadores sem necessidade ou fora de eventos.
+4.  📢 **Sem Spam:** Não fazer spam ou encher o chat de letras.
+5.  🌳 **Meio Ambiente:** Não desmatar o meio ambiente. Se cortar, replante!
+6.  💣 **Sem Vandalismo:** Não destruir o mapa ou as bases alheias.
+
+*Muitas outras coisas prejudiciais também não são aceitáveis. Jogue limpo!*`,
+
+            `# 🎮 <span class="gradient-text">Como Funciona?</span>
+            
+Pronto para jogar? Clique no botão abaixo para adicionar automaticamente o nosso servidor na sua lista de servidores do Minecraft!
+
+<a href="https://add.aternos.org/Astral_Craft" target="_blank" class="action-link"><i class="fa-solid fa-server"></i> Adicionar Servidor</a>
+
+---
+
+### 📥 Download Necessário
+Ao clicar no botão abaixo, você será redirecionado para a área de download do nosso Minecraft.
+
+O dono do servidor escolheu esta versão especificamente para ser **100% compatível** com qualquer tipo de celular, até os mais fracos. Ninguém fica de fora da diversão!
+
+<a href="https://www.mediafire.com/file/l5hx7ysud18ac4x/minecraft-1-18-32.apk/file" target="_blank" class="action-link" style="background-color: #2E7D32;"><i class="fa-solid fa-download"></i> Baixar Minecraft 1.18.32</a>`
+        ];
+
+        let currentPage = 0;
+
+        function renderPage() {
+            const contentArea = document.getElementById('content-area');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const pageIndicator = document.getElementById('page-indicator');
+
+            // Animação de saída
+            contentArea.classList.remove('animate__fadeIn');
+            void contentArea.offsetWidth; // Trigger reflow
+            contentArea.classList.add('animate__fadeIn');
+
+            // Usa Marked.js para converter Markdown em HTML, e DOMPurify para segurança
+            const rawHtml = marked.parse(pages[currentPage]);
+            contentArea.innerHTML = DOMPurify.sanitize(rawHtml);
+
+            // Atualiza Botões e Indicador
+            pageIndicator.innerText = `${currentPage + 1} / ${pages.length}`;
+            btnPrev.disabled = currentPage === 0;
+            btnNext.disabled = currentPage === pages.length - 1;
+
+            // Ativa o Tippy.js nas dicas da página 3
+            if(currentPage === 2) {
+                tippy('.action-link', {
+                    content: 'Clique para acessar!',
+                    animation: 'scale',
+                    theme: 'translucent',
+                });
+                
+                // Dispara os confetes quando chega na última aba
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#FF512F', '#DD2476', '#EED7A1']
+                });
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderPage();
+        }
+
+        // Inicialização quando a página carrega
+        window.onload = () => {
+            renderPage();
+            
+            // Pop-up de boas-vindas do SweetAlert2
+            Swal.fire({
+                title: 'Bem-vindo ao Astral Craft!',
+                text: 'Leia o nosso livro para entender as regras do servidor.',
+                icon: 'info',
+                confirmButtonText: 'Abrir Livro',
+                confirmButtonColor: '#3E2723',
+                background: '#EED7A1',
+                color: '#2e1e0f'
+            });
+
+            // Configuração do fundo de estrelas (Particles.js)
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { "value": 80 },
+                    "color": { "value": "#ffffff" },
+                    "opacity": { "value": 0.5, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": false },
+                    "move": { "enable": true, "speed": 1, "direction": "top", "out_mode": "out" }
+                },
+                "interactivity": {
+                    "events": { "onhover": { "enable": true, "mode": "bubble" } },
+                    "modes": { "bubble": { "distance": 200, "size": 6, "duration": 2, "opacity": 1 } }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
